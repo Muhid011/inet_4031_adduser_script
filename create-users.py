@@ -5,57 +5,58 @@
 # Date Created: 10/25/2025
 # Date Last Modified: 10/27/2025
 
-# os – allows execution of system-level commands
-# re – used for regular expression matching
-# sys – provides access to system input/output
+# Import modules:
+# os – runs system commands
+# re – checks for comment lines
+# sys – reads input from a file
 import os
 import re
 import sys
 
 def main():
     for line in sys.stdin:
-        # Skip lines that start with '#' (used for comments in input file)
+        # Skip lines that start with '#' (comments)
         match = re.match("^#", line)
 
-        # Split the line into fields using ':' as the delimiter
+        # Split the line by ':' into parts
         fields = line.strip().split(':')
 
-        # Skip the line if it's a comment or doesn't contain exactly 5 fields
+        # Skip if it's a comment or missing fields
         if match or len(fields) != 5:
             continue
 
-        # Extract user details from the fields
+        # Get user info
         username = fields[0]
         password = fields[1]
-        gecos = "%s %s,,," % (fields[3], fields[2])  # Format: Full Name, Room Number, etc.
+        gecos = "%s %s,,," % (fields[3], fields[2])  # Full name format
 
-        # Split group field into a list of groups
+        # Get group list
         groups = fields[4].split(',')
 
-        # Notify that account creation is starting
+        # Show message for creating user
         print("==> Creating account for %s..." % (username))
 
-        # Build the command to create the user with no password and GECOS info
+        # Command to create user
         cmd = "/usr/sbin/adduser --disabled-password --gecos '%s' %s" % (gecos, username)
 
-        # Uncomment the line below to actually create the user
+        # Run this line to create user
         # os.system(cmd)
 
-        # Notify that password is being set
+        # Show message for setting password
         print("==> Setting the password for %s..." % (username))
 
-        # Build the command to set the user's password using echo and passwd
+        # Command to set password
         cmd = "/bin/echo -ne '%s\n%s' | /usr/bin/sudo /usr/bin/passwd %s" % (password, password, username)
 
-        # Uncomment the line below to actually set the password
+        # Run this line to set password
         # os.system(cmd)
 
-        # Assign user to specified groups (if not '-')
+        # Add user to groups
         for group in groups:
             if group != '-':
                 print("==> Assigning %s to the %s group..." % (username, group))
                 cmd = "/usr/sbin/adduser %s %s" % (username, group)
-                # Uncomment the line below to actually add the user to the group
+                # Run this line to add user to group
                 # os.system(cmd)
 
 if __name__ == '__main__':
