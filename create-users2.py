@@ -2,17 +2,17 @@
 
 # INET4031 – Interactive Dry Run Script
 # Author: Hamza Muhidin
-# Date Created: Oct/25/2025
-# Last Modified: Oc/27/20225
+# Date Created: 10/25/2025
+# Last Modified: 10/27/2025
 
-# os – runs Linux system commands
-# re – checks for comment lines using regular expressions
-# sys – reads input file line by line from standard input
+# os – runs system commands
+# re – checks for comment lines
+# sys – reads input from a file
 import os
 import re
 import sys
 
-# Prompt user to choose dry-run mode
+# Ask user if they want to do a dry run
 dry_run = input("Run in dry-run mode? (Y/N): ").strip().upper() == "Y"
 
 def main():
@@ -20,24 +20,24 @@ def main():
         # Skip lines that start with '#' (comments)
         match = re.match("^#", line)
 
-        # Split line into fields using ':' delimiter
+        # Split the line by ':' into parts
         fields = line.strip().split(':')
 
-        # Skip line if it's a comment or doesn't have exactly 5 fields
+        # Skip if it's a comment or missing fields
         if match or len(fields) != 5:
             if dry_run:
                 print("[Dry Run] Skipping line due to comment or incorrect format.")
             continue
 
-        # Extract user details
+        # Get user info
         username = fields[0]
         password = fields[1]
-        gecos = "%s %s,,," % (fields[3], fields[2])  # Format: First Last,,,
+        gecos = "%s %s,,," % (fields[3], fields[2])  # Full name format
 
-        # Split group field into list of groups
+        # Get group list
         groups = fields[4].split(',')
 
-        # Notify account creation
+        # Show message for creating user
         print(f"==> Creating account for {username}...")
         cmd = f"/usr/sbin/adduser --disabled-password --gecos '{gecos}' {username}"
         if dry_run:
@@ -45,7 +45,7 @@ def main():
         else:
             os.system(cmd)
 
-        # Notify password setup
+        # Show message for setting password
         print(f"==> Setting the password for {username}...")
         cmd = f"/bin/echo -ne '{password}\n{password}' | /usr/bin/sudo /usr/bin/passwd {username}"
         if dry_run:
@@ -53,7 +53,7 @@ def main():
         else:
             os.system(cmd)
 
-        # Assign user to groups if applicable
+        # Add user to groups
         for group in groups:
             if group != '-':
                 print(f"==> Assigning {username} to the {group} group...")
